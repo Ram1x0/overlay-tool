@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理画面 - 荒野行動オーバーレイ</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>配信オーバーレイ管理画面</h1>
+      <span class="game-id">game: <span id="gameIdLabel"></span></span>
+    </div>
+
+    <!-- タイトル・残りキル数 -->
+    <section class="admin-section glass-panel">
+      <h2>基本設定</h2>
+
+      <div class="admin-field">
+        <label for="titleInput">タイトル</label>
+        <input type="text" id="titleInput" placeholder="🎁 荒野行動 ギフト妨害一覧">
+      </div>
+
+      <div class="admin-row">
+        <div class="admin-field">
+          <label for="killLabelInput">キル数ラベル</label>
+          <input type="text" id="killLabelInput" placeholder="残り">
+        </div>
+        <div class="admin-field">
+          <label for="killUnitInput">単位</label>
+          <input type="text" id="killUnitInput" placeholder="Kill">
+        </div>
+      </div>
+
+      <div class="admin-field">
+        <label for="killCountInput">残りキル数</label>
+        <div class="admin-row">
+          <button type="button" class="btn btn-secondary" id="killDecBtn">-1</button>
+          <input type="number" id="killCountInput" placeholder="0">
+          <button type="button" class="btn btn-secondary" id="killIncBtn">+1</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ギフト一覧編集 -->
+    <section class="admin-section glass-panel">
+      <h2>ギフト一覧（名前 / 画像パス / 妨害内容）</h2>
+
+      <div id="giftList"><!-- JSで動的に生成 --></div>
+
+      <button type="button" class="btn btn-secondary" id="addGiftBtn" style="width:100%;">＋ ギフトを追加</button>
+    </section>
+
+    <!-- 操作ボタン -->
+    <section class="admin-section glass-panel">
+      <div class="admin-row">
+        <button type="button" class="btn btn-primary" id="saveBtn">保存して配信に反映</button>
+        <button type="button" class="btn btn-danger" id="resetBtn">JSONから初期化</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="status"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
