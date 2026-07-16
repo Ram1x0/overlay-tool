@@ -87,12 +87,15 @@ body.overlay-page{
 #stage{
   position: relative;
   width: 941px;
-  min-height: 500px;
-  max-height: 600px;
+  /* min/maxだけだとflex:1のgift-areaが余白まで広がりきらず、
+     カード(と中の画像)が min-height 相当の小さいサイズに
+     縮んでしまうことがあるため、確定した高さを指定する。
+     (仕様の「約500〜600px」の範囲内で580pxに設定) */
+  height: 580px;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   opacity: 0;
   animation: stageFadeIn 1s ease forwards;
 }
@@ -106,7 +109,7 @@ body.overlay-page{
   gap: 12px;
 }
 .title-bar{
-  padding: 10px 20px;
+  padding: 8px 20px;
   display: flex;
   align-items: center;
 }
@@ -117,7 +120,7 @@ body.overlay-page{
   white-space: nowrap;
 }
 .clock-bar{
-  padding: 10px 18px;
+  padding: 8px 18px;
 }
 .clock-bar #clock{
   font-family: var(--font-num);
@@ -131,7 +134,7 @@ body.overlay-page{
 .gift-area{
   position: relative;
   flex: 1;
-  min-height: 340px;
+  min-height: 400px;
 }
 
 /* 自動ページ送り用に2枚重ねて、クロスフェードで切り替える */
@@ -264,7 +267,7 @@ body.overlay-page{
 /* --- 残りキル数(下部中央) --- */
 .kill-footer{
   align-self: center;
-  padding: 10px 48px;
+  padding: 8px 48px;
   display: flex;
   align-items: baseline;
   gap: 14px;
@@ -404,17 +407,38 @@ body.admin-page{
 
 /* --- ギフト編集リスト --- */
 #giftList{ display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+
+/* 1行目(名前/画像/効果)と2行目(種別・操作ボタン)の2段組み。
+   全部を1行に詰め込むと、種別セレクトの分だけ名前/画像/効果の
+   入力欄が圧迫されて小さくなってしまうため、行を分けて
+   名前/画像/効果は以前と同じ幅比率を保つようにしている。 */
 .gift-row{
-  display: grid;
-  /* 名前 / 画像 / 効果 / 種別 / 上へ / 下へ / 削除 の7列 */
-  grid-template-columns: 1fr 1fr 1.4fr auto auto auto auto;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  align-items: center;
   background: #16161a;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 8px;
 }
+.gift-row-fields{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr; /* 名前 / 画像 / 効果 */
+  gap: 6px;
+}
+.gift-row-actions{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* 種別セレクトだけ少し幅を確保し、操作ボタン群は右側にまとめる */
+.gift-row-actions .f-type{ flex: 0 0 120px; }
+.gift-row-actions .gift-row-buttons{
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
 .gift-row input,
 .gift-row select{
   padding: 8px;
@@ -423,6 +447,7 @@ body.admin-page{
   border: 1px solid rgba(255,255,255,0.08);
   background: #0d0d0e;
   color: var(--color-text);
+  width: 100%;
 }
 /* 種別セレクトは選ばれている値に応じてふちの色を変え、一覧性を上げる */
 .gift-row select.f-type-sabotage{ border-color: var(--color-sabotage); color: var(--color-sabotage); }
