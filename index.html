@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=941, initial-scale=1.0">
+<title>荒野行動 ギフト妨害オーバーレイ</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="overlay-page">
+
+  <!--
+    #stage が941px固定のオーバーレイ本体。
+    背景は透明なので、PRISM LIVEのブラウザソースとして
+    ゲーム映像の上に重ねて使う。
+  -->
+  <div id="stage">
+
+    <!-- ① ヘッダー: タイトル(左) + 時計(右) -->
+    <div class="header-bar">
+      <div class="title-bar glass-panel">
+        <span id="title" class="gold-text">読み込み中...</span>
+      </div>
+      <div class="clock-bar glass-panel">
+        <span id="clock">--:--:--</span>
+      </div>
+    </div>
+
+    <!-- ③ ギフト一覧: 2枚のレイヤーを交互に表示してクロスフェード -->
+    <div class="gift-area">
+      <div class="gift-page" id="giftPageA"></div>
+      <div class="gift-page" id="giftPageB"></div>
+    </div>
+
+    <!-- ④ 残りキル数(下部中央、大きく強調) -->
+    <div class="kill-footer glass-panel">
+      <span class="kill-label" id="killLabel">残り</span>
+      <span class="kill-value gold-text" id="killCount">0</span>
+      <span class="kill-unit" id="killUnit">Kill</span>
+    </div>
+
+    <!-- 接続エラー時のみ表示される小さなステータス表示 -->
+    <div id="status" class="status-badge">接続できません</div>
+  </div>
+
+  <!-- Firebase SDK (compat版。ビルド不要でそのまま使える) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- 表示ロジック本体(ES Modules)。データ管理はcommon.jsに分離済み -->
+  <script type="module" src="overlay.js"></script>
+</body>
+</html>
