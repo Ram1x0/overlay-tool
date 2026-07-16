@@ -53,9 +53,7 @@ function buildGiftCard(gift) {
   const card = document.createElement('div');
   card.className = 'gift-card';
 
-  const imageWrap = document.createElement('div');
-  imageWrap.className = 'gift-image-wrap';
-
+  // 画像はカード全面の背景として敷く(文字と重なってOK)
   const img = document.createElement('img');
   img.className = 'gift-image';
   img.src = gift.image || 'images/placeholder.png';
@@ -63,8 +61,8 @@ function buildGiftCard(gift) {
   img.loading = 'lazy';
   // 画像が読み込めない場合はプレースホルダーに差し替える
   img.onerror = () => { img.src = 'images/placeholder.png'; };
-  imageWrap.appendChild(img);
 
+  // 文字は画像の上に重ねて表示(下からグラデーションをかけて可読性を確保)
   const info = document.createElement('div');
   info.className = 'gift-info';
   info.innerHTML = `
@@ -72,7 +70,7 @@ function buildGiftCard(gift) {
     <div class="gift-effect">${escapeHtml(gift.effect)}</div>
   `;
 
-  card.appendChild(imageWrap);
+  card.appendChild(img);
   card.appendChild(info);
   return card;
 }
