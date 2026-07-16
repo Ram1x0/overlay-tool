@@ -8,7 +8,7 @@
    ここの変数だけ調整すれば全体の見た目が揃って変わる。
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Orbitron:wght@600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Shippori+Mincho:wght@700;800&display=swap');
 
 :root{
   /* --- カラー(黒 / グレー / イエロー基調) --- */
@@ -38,8 +38,8 @@
   --glow-accent: 0 0 12px rgba(255, 201, 60, 0.35);
 
   /* --- フォント --- */
-  --font-jp: 'Noto Sans JP', sans-serif;
-  --font-num: 'Orbitron', sans-serif;
+  --font-jp: 'Shippori Mincho', serif;
+  --font-num: 'Cinzel', serif;
 }
 
 *{ box-sizing: border-box; margin: 0; padding: 0; }
@@ -115,7 +115,7 @@ body.overlay-page{
 }
 .title-bar #title{
   font-size: 22px;
-  font-weight: 900;
+  font-weight: 800; /* Shippori Minchoの最大ウェイト。太さの上限に合わせて可読性を確保 */
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
@@ -125,7 +125,7 @@ body.overlay-page{
 .clock-bar #clock{
   font-family: var(--font-num);
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 800; /* 視認性重視でCinzelの太めウェイトを採用 */
   letter-spacing: 0.08em;
   color: var(--color-accent);
 }
@@ -254,7 +254,7 @@ body.overlay-page{
 }
 .gift-effect{
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800; /* Shippori Minchoの太めウェイトで可読性を確保 */
   color: #ffffff;
   line-height: 1.3;
   display: -webkit-box;
@@ -274,13 +274,13 @@ body.overlay-page{
 }
 .kill-label{
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-text-dim);
 }
 .kill-value{
   font-family: var(--font-num);
   font-size: 64px;
-  font-weight: 800;
+  font-weight: 900; /* Cinzelの最大ウェイトで、一番目立たせたい数字を最も太く */
   line-height: 1;
   /* ほんのり光る演出。派手にしすぎない */
   animation: killGlow 3s ease-in-out infinite;
@@ -291,7 +291,7 @@ body.overlay-page{
 }
 .kill-unit{
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-text-dim);
 }
 
@@ -334,7 +334,7 @@ body.admin-page{
 }
 .admin-header h1{
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.04em;
 }
 .admin-header .game-id{
