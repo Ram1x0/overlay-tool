@@ -132,7 +132,11 @@ body.overlay-page{
   inset: 0;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  grid-auto-rows: 1fr;
+  /* 行数を3行に固定。最終ページで枚数が18に満たない場合でも、
+     カードのサイズが1〜2ページ目と揃うようにするため
+     (grid-auto-rows: 1fr のままだと、行数が少ないページだけ
+      カードが縦に間延びしてしまう) */
+  grid-template-rows: repeat(3, 1fr);
   gap: 10px;
   opacity: 0;
   transform: translateY(4px);
