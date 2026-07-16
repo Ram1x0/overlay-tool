@@ -90,10 +90,14 @@ Firebaseコンソールで取得した値に書き換えます。
        "initialKillCount": 50
      },
      "gifts": [
-       { "name": "花", "image": "images/heartopia/flower.png", "effect": "○○禁止10秒" }
+       { "name": "花", "image": "images/heartopia/flower.png", "effect": "○○禁止10秒", "type": "sabotage" }
      ]
    }
    ```
+
+   `type` は `"sabotage"`（妨害・赤色）または `"rescue"`（救済・緑色）を指定します。
+   省略した場合は自動的に `"sabotage"` 扱いになります。オーバーレイ側では
+   カードの縁の色と右上のバッジ表示（「妨害」/「救済」）で見分けられます。
 2. オーバーレイと管理画面を、URLの末尾に `?game=heartopia` を付けて開く
 
    ```

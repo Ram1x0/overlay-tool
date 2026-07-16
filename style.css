@@ -20,6 +20,14 @@
   --color-text-dim: #b9b9b2;
   --color-danger: #ff6b6b;
 
+  /* --- ギフト種別カラー ---
+     妨害ギフト: 赤系(危険・不利になることを直感的に伝える)
+     救済ギフト: 緑系(助かる・有利になることを直感的に伝える) */
+  --color-sabotage: #ff5c5c;
+  --color-sabotage-dim: #b93b3b;
+  --color-rescue: #4ade80;
+  --color-rescue-dim: #2f9d5c;
+
   /* --- 形状 --- */
   --radius-lg: 16px;
   --radius-md: 10px;
@@ -167,6 +175,36 @@ body.overlay-page{
 .gift-card:nth-child(2n){ animation-delay: 0.4s; }
 .gift-card:nth-child(3n){ animation-delay: 0.8s; }
 .gift-card:nth-child(5n){ animation-delay: 1.2s; }
+
+/* --- ギフト種別による色分け ---
+   type: "sabotage"(妨害) は赤、"rescue"(救済) は緑でふちどりと発光色を変える */
+.gift-card--sabotage{
+  border-color: var(--color-sabotage);
+  box-shadow: 0 0 10px rgba(255, 92, 92, 0.28);
+}
+.gift-card--rescue{
+  border-color: var(--color-rescue);
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.28);
+}
+.gift-card--sabotage .gift-name{ color: var(--color-sabotage); }
+.gift-card--rescue .gift-name{ color: var(--color-rescue); }
+
+/* カード右上に「妨害」「救済」を示す小さなバッジを表示 */
+.gift-type-badge{
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: #14100a;
+  text-shadow: none;
+}
+.gift-card--sabotage .gift-type-badge{ background: var(--color-sabotage); }
+.gift-card--rescue .gift-type-badge{ background: var(--color-rescue); }
 
 @keyframes cardFloat{
   0%, 100%{ transform: translateY(0); }
@@ -368,7 +406,8 @@ body.admin-page{
 #giftList{ display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
 .gift-row{
   display: grid;
-  grid-template-columns: 1fr 1fr 1.4fr auto auto auto;
+  /* 名前 / 画像 / 効果 / 種別 / 上へ / 下へ / 削除 の7列 */
+  grid-template-columns: 1fr 1fr 1.4fr auto auto auto auto;
   gap: 6px;
   align-items: center;
   background: #16161a;
@@ -376,7 +415,8 @@ body.admin-page{
   border-radius: var(--radius-sm);
   padding: 8px;
 }
-.gift-row input{
+.gift-row input,
+.gift-row select{
   padding: 8px;
   font-size: 13px;
   border-radius: var(--radius-sm);
@@ -384,6 +424,9 @@ body.admin-page{
   background: #0d0d0e;
   color: var(--color-text);
 }
+/* 種別セレクトは選ばれている値に応じてふちの色を変え、一覧性を上げる */
+.gift-row select.f-type-sabotage{ border-color: var(--color-sabotage); color: var(--color-sabotage); }
+.gift-row select.f-type-rescue{ border-color: var(--color-rescue); color: var(--color-rescue); }
 
 /* --- 保存後のトースト通知 --- */
 #status{

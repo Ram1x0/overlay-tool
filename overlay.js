@@ -51,7 +51,10 @@ tickClock();
  */
 function buildGiftCard(gift) {
   const card = document.createElement('div');
-  card.className = 'gift-card';
+  // type: "sabotage"(妨害) / "rescue"(救済) でカードの色分けクラスを切り替える
+  // 未指定の場合は既定で「妨害」扱いにする(このゲームの主目的が妨害のため)
+  const type = gift.type === 'rescue' ? 'rescue' : 'sabotage';
+  card.className = `gift-card gift-card--${type}`;
 
   // 画像はカード全面の背景として敷く(文字と重なってOK)
   const img = document.createElement('img');
@@ -62,6 +65,11 @@ function buildGiftCard(gift) {
   // 画像が読み込めない場合はプレースホルダーに差し替える
   img.onerror = () => { img.src = 'images/placeholder.png'; };
 
+  // 右上に種別バッジ(「妨害」/「救済」)を表示
+  const badge = document.createElement('div');
+  badge.className = 'gift-type-badge';
+  badge.textContent = type === 'rescue' ? '救済' : '妨害';
+
   // 文字は画像の上に重ねて表示(下からグラデーションをかけて可読性を確保)
   const info = document.createElement('div');
   info.className = 'gift-info';
@@ -71,6 +79,7 @@ function buildGiftCard(gift) {
   `;
 
   card.appendChild(img);
+  card.appendChild(badge);
   card.appendChild(info);
   return card;
 }
