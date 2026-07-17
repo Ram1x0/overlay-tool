@@ -65,20 +65,23 @@ function buildGiftCard(gift) {
   // 画像が読み込めない場合はプレースホルダーに差し替える
   img.onerror = () => { img.src = 'images/placeholder.png'; };
 
+  // ギフト名は左上に小さく配置(バッジと対称の位置)
+  const nameEl = document.createElement('div');
+  nameEl.className = 'gift-name';
+  nameEl.textContent = gift.name ?? '';
+
   // 右上に種別バッジ(「妨害」/「救済」)を表示
   const badge = document.createElement('div');
   badge.className = 'gift-type-badge';
   badge.textContent = type === 'rescue' ? '救済' : '妨害';
 
-  // 文字は画像の上に重ねて表示(下からグラデーションをかけて可読性を確保)
+  // 効果テキストは下部の帯に大きく表示(画像の上に重ねてOK)
   const info = document.createElement('div');
   info.className = 'gift-info';
-  info.innerHTML = `
-    <div class="gift-name">${escapeHtml(gift.name)}</div>
-    <div class="gift-effect">${escapeHtml(gift.effect)}</div>
-  `;
+  info.innerHTML = `<div class="gift-effect">${escapeHtml(gift.effect)}</div>`;
 
   card.appendChild(img);
+  card.appendChild(nameEl);
   card.appendChild(badge);
   card.appendChild(info);
   return card;
