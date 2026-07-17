@@ -302,8 +302,8 @@ body.overlay-page{
   text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.85);
   -webkit-text-stroke: calc(0.6 * var(--px)) rgba(0,0,0,0.7);
 }
-.gift-kill-delta--positive{ color: var(--color-rescue); }
-.gift-kill-delta--negative{ color: var(--color-sabotage); }
+.gift-kill-delta--sabotage{ color: var(--color-sabotage); } /* +: 残りキル数が増える=悪化 */
+.gift-kill-delta--rescue{ color: var(--color-rescue); }     /* -: 残りキル数が減る=好転 */
 
 /* バッジと効果文字が重ならないよう、右側に余白を確保 */
 .gift-card--has-delta .gift-info{

@@ -88,10 +88,12 @@ function buildGiftCard(gift) {
   card.appendChild(info);
 
   // キル数増減があれば、右下に大きく「+5」「-3」のように表示
+  // 「残り」キル数は減るほど良い(クリアに近づく)ため、
+  // +(残りが増える)=悪化=妨害色(赤)、-(残りが減る)=好転=救済色(緑) とする
   if (killDelta !== 0) {
     const deltaEl = document.createElement('div');
-    const sign = killDelta > 0 ? 'positive' : 'negative';
-    deltaEl.className = `gift-kill-delta gift-kill-delta--${sign}`;
+    const colorClass = killDelta > 0 ? 'sabotage' : 'rescue';
+    deltaEl.className = `gift-kill-delta gift-kill-delta--${colorClass}`;
     deltaEl.textContent = killDelta > 0 ? `+${killDelta}` : `${killDelta}`;
     card.appendChild(deltaEl);
   }
