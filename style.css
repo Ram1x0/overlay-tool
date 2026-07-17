@@ -8,7 +8,10 @@
    ここの変数だけ調整すれば全体の見た目が揃って変わる。
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Shippori+Mincho:wght@700;800&display=swap');
+/* フォントの読み込みは index.html / admin.html 側の
+   <link rel="preconnect"> + <link rel="stylesheet"> で行っている。
+   (CSSの@importは読み込みが遅く、切り替え時の表示ラグの原因に
+   なりやすいため使わない) */
 
 :root{
   /* --- カラー(黒 / グレー / イエロー基調) --- */
