@@ -47,22 +47,35 @@ function renderGiftList() {
     const row = document.createElement('div');
     row.className = 'gift-row';
     row.innerHTML = `
-      <input type="text" class="f-name" placeholder="ギフト名" value="${escapeAttr(gift.name)}">
-      <input type="text" class="f-image" placeholder="images/xxx.png または https://..." value="${escapeAttr(gift.image)}">
-      <input type="text" class="f-effect" placeholder="妨害/救済内容" value="${escapeAttr(gift.effect)}">
-      <select class="f-type f-type-${type}">
-        <option value="sabotage" ${type === 'sabotage' ? 'selected' : ''}>妨害</option>
-        <option value="rescue" ${type === 'rescue' ? 'selected' : ''}>救済</option>
-      </select>
-      <button type="button" class="btn btn-secondary btn-icon f-up" title="上へ">↑</button>
-      <button type="button" class="btn btn-secondary btn-icon f-down" title="下へ">↓</button>
-      <button type="button" class="btn btn-danger btn-icon f-remove" title="削除">✕</button>
+      <div class="gift-row-fields">
+        <input type="text" class="f-name" placeholder="ギフト名" value="${escapeAttr(gift.name)}">
+        <input type="text" class="f-image" placeholder="images/xxx.png または https://..." value="${escapeAttr(gift.image)}">
+        <input type="text" class="f-effect" placeholder="妨害/救済内容" value="${escapeAttr(gift.effect)}">
+      </div>
+      <div class="gift-row-actions">
+        <select class="f-type f-type-${type}">
+          <option value="sabotage" ${type === 'sabotage' ? 'selected' : ''}>妨害</option>
+          <option value="rescue" ${type === 'rescue' ? 'selected' : ''}>救済</option>
+        </select>
+        <input type="number" class="f-kill-delta" placeholder="キル増減(任意)" value="${gift.killDelta ?? ''}">
+        <div class="gift-row-buttons">
+          <button type="button" class="btn btn-secondary btn-icon f-up" title="上へ">↑</button>
+          <button type="button" class="btn btn-secondary btn-icon f-down" title="下へ">↓</button>
+          <button type="button" class="btn btn-danger btn-icon f-remove" title="削除">✕</button>
+        </div>
+      </div>
     `;
 
     // 入力内容をそのまま state.gifts[index] に反映(保存ボタンで確定)
     row.querySelector('.f-name').oninput = (e) => { gift.name = e.target.value; };
     row.querySelector('.f-image').oninput = (e) => { gift.image = e.target.value; };
     row.querySelector('.f-effect').oninput = (e) => { gift.effect = e.target.value; };
+    // 空欄なら「キル増減なし」としてkillDeltaごと消す(0扱いにしてバッジを出さないため)
+    row.querySelector('.f-kill-delta').oninput = (e) => {
+      const v = e.target.value;
+      if (v === '') { delete gift.killDelta; }
+      else { gift.killDelta = Number(v); }
+    };
 
     const typeSelect = row.querySelector('.f-type');
     typeSelect.onchange = (e) => {

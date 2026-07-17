@@ -54,7 +54,9 @@ function buildGiftCard(gift) {
   // type: "sabotage"(妨害) / "rescue"(救済) でカードの色分けクラスを切り替える
   // 未指定の場合は既定で「妨害」扱いにする(このゲームの主目的が妨害のため)
   const type = gift.type === 'rescue' ? 'rescue' : 'sabotage';
-  card.className = `gift-card gift-card--${type}`;
+  // killDelta: キル数の増減(例: +5, -3)。0や未指定なら表示しない
+  const killDelta = Number(gift.killDelta) || 0;
+  card.className = `gift-card gift-card--${type}${killDelta !== 0 ? ' gift-card--has-delta' : ''}`;
 
   // 画像はカード全面の背景として敷く(文字と重なってOK)
   const img = document.createElement('img');
@@ -84,6 +86,16 @@ function buildGiftCard(gift) {
   card.appendChild(nameEl);
   card.appendChild(badge);
   card.appendChild(info);
+
+  // キル数増減があれば、右下に大きく「+5」「-3」のように表示
+  if (killDelta !== 0) {
+    const deltaEl = document.createElement('div');
+    const sign = killDelta > 0 ? 'positive' : 'negative';
+    deltaEl.className = `gift-kill-delta gift-kill-delta--${sign}`;
+    deltaEl.textContent = killDelta > 0 ? `+${killDelta}` : `${killDelta}`;
+    card.appendChild(deltaEl);
+  }
+
   return card;
 }
 

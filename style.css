@@ -274,16 +274,40 @@ body.overlay-page{
   );
 }
 .gift-effect{
-  font-size: calc(17 * var(--px));
+  font-size: calc(19 * var(--px));
   font-weight: 800; /* Shippori Minchoの太めウェイトで可読性を確保 */
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1.15;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.8);
   -webkit-text-stroke: calc(0.5 * var(--px)) rgba(0,0,0,0.65);
+}
+
+/* キル数増減がある場合、右下に大きく表示するバッジ。
+   効果文字とぶつからないよう、バッジがある時だけ.gift-infoの
+   右側に余白を空ける(下の.gift-card--has-delta .gift-infoで指定)。 */
+.gift-kill-delta{
+  position: absolute;
+  right: calc(6 * var(--px));
+  bottom: calc(6 * var(--px));
+  z-index: 3;
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: calc(24 * var(--px));
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.85);
+  -webkit-text-stroke: calc(0.6 * var(--px)) rgba(0,0,0,0.7);
+}
+.gift-kill-delta--positive{ color: var(--color-rescue); }
+.gift-kill-delta--negative{ color: var(--color-sabotage); }
+
+/* バッジと効果文字が重ならないよう、右側に余白を確保 */
+.gift-card--has-delta .gift-info{
+  padding-right: calc(56 * var(--px));
 }
 
 /* --- 残りキル数(下部中央) --- */
@@ -455,6 +479,7 @@ body.admin-page{
 }
 /* 種別セレクトだけ少し幅を確保し、操作ボタン群は右側にまとめる */
 .gift-row-actions .f-type{ flex: 0 0 120px; }
+.gift-row-actions .f-kill-delta{ flex: 0 0 110px; }
 .gift-row-actions .gift-row-buttons{
   display: flex;
   gap: 6px;
