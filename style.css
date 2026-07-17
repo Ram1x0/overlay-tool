@@ -129,7 +129,7 @@ body.overlay-page{
   align-items: center;
 }
 .title-bar #title{
-  font-size: calc(22 * var(--px));
+  font-size: calc(24 * var(--px));
   font-weight: 800; /* Shippori Minchoの最大ウェイト。太さの上限に合わせて可読性を確保 */
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -139,7 +139,7 @@ body.overlay-page{
 }
 .clock-bar #clock{
   font-family: var(--font-num);
-  font-size: calc(22 * var(--px));
+  font-size: calc(24 * var(--px));
   font-weight: 800; /* 視認性重視でCinzelの太めウェイトを採用 */
   letter-spacing: 0.08em;
   color: var(--color-accent);
@@ -261,24 +261,28 @@ body.overlay-page{
   );
 }
 .gift-name{
-  font-size: calc(13 * var(--px));
+  font-size: calc(16 * var(--px));
   font-weight: 800;
   color: var(--color-accent);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  /* フォントの太さの上限(800)に加えて縁取りを足し、
+     画質が粗くても文字の輪郭がつぶれにくいようにする */
+  -webkit-text-stroke: calc(0.4 * var(--px)) currentColor;
 }
 .gift-effect{
-  font-size: calc(12 * var(--px));
+  font-size: calc(14 * var(--px));
   font-weight: 800; /* Shippori Minchoの太めウェイトで可読性を確保 */
   color: #ffffff;
-  line-height: 1.3;
+  line-height: 1.25;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  -webkit-text-stroke: calc(0.3 * var(--px)) rgba(0,0,0,0.6);
 }
 
 /* --- 残りキル数(下部中央) --- */
@@ -290,7 +294,7 @@ body.overlay-page{
   gap: calc(14 * var(--px));
 }
 .kill-label{
-  font-size: calc(16 * var(--px));
+  font-size: calc(18 * var(--px));
   font-weight: 800;
   color: var(--color-text-dim);
 }
@@ -307,7 +311,7 @@ body.overlay-page{
   50%{ filter: drop-shadow(0 0 14px rgba(255,201,60,0.6)); }
 }
 .kill-unit{
-  font-size: calc(18 * var(--px));
+  font-size: calc(20 * var(--px));
   font-weight: 800;
   color: var(--color-text-dim);
 }
