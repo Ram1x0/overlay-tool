@@ -319,13 +319,13 @@ body.overlay-page{
   gap: calc(14 * var(--px));
 }
 .kill-label{
-  font-size: calc(18 * var(--px));
+  font-size: calc(20 * var(--px));
   font-weight: 800;
   color: var(--color-text-dim);
 }
 .kill-value{
   font-family: var(--font-num);
-  font-size: calc(64 * var(--px));
+  font-size: calc(112 * var(--px)); /* 64pxのおよそ1.75倍 */
   font-weight: 900; /* Cinzelの最大ウェイトで、一番目立たせたい数字を最も太く */
   line-height: 1;
   /* ほんのり光る演出。派手にしすぎない */
@@ -336,7 +336,7 @@ body.overlay-page{
   50%{ filter: drop-shadow(0 0 14px rgba(255,201,60,0.6)); }
 }
 .kill-unit{
-  font-size: calc(20 * var(--px));
+  font-size: calc(22 * var(--px));
   font-weight: 800;
   color: var(--color-text-dim);
 }
