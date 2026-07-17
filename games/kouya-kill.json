@@ -40,6 +40,7 @@
     { "name": "光るクラゲ",           "image": "images/kurage.jpg", "effect": "視点回転操作10秒",      "type": "sabotage" },
     { "name": "花火",           "image": "images/hanabi.jpg", "effect": "視点回転操作10秒",      "type": "sabotage" },
     { "name": "羽根",           "image": "images/hane.jpg", "effect": "視点回転操作10秒",      "type": "sabotage" },
-    { "name": "新規スーパーファン",           "image": "images/superfan.jpg", "effect": "視点回転操作10秒",      "type": "sabotage" }
+    { "name": "新規スーパーファン",           "image": "images/superfan.jpg", "effect": "視点回転操作10秒",      "type": "sabotage" },
+    { "name": "ハートミー",           "image": "images/heart-me.jpg", "effect": "視点回転操作10秒",      "type": "sabotage" }
   ]
 }
