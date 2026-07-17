@@ -76,26 +76,38 @@ html, body{
 /* ============================================================
    ① 配信オーバーレイ（index.html）
    ------------------------------------------------------------
-   横幅941px固定。PRISM LIVEのブラウザソースにこのサイズで
-   合わせて読み込む想定。背景は透明（ゲーム映像の上に重ねる）。
+   縦横比は941:580固定だが、実際のピクセルサイズは
+   ブラウザソースに設定した解像度にそのまま比例する。
+   （--px を「1pxに相当するvw」として使い、全てのサイズ指定を
+   px単体ではなく calc(数値 * var(--px)) にすることで実現）
+
+   【なぜこうしているか】
+   単純に width:941px; と固定してしまうと、PRISM側でソースを
+   拡大表示したときに「941px分の画素」を無理やり引き伸ばすことに
+   なり、文字や画像がぼやける。
+   このやり方なら、PRISM側のWebソースの解像度自体を
+   例えば 1882×1160(941×580のちょうど2倍)に設定するだけで、
+   ブラウザがその解像度でネイティブに描き直してくれるので、
+   拡大してもぼやけない。
+   ※ PRISM側で解像度を変える際は、941:580の比率
+   (だいたい1.62:1)を保ってください。比率が崩れると
+   レイアウトが縦横に間延び/圧縮されます。
    ============================================================ */
 body.overlay-page{
   background: transparent;
   overflow: hidden;
+  /* 941px幅を基準の「100vw」とみなし、1px相当のvw値を作る */
+  --px: calc(100vw / 941);
 }
 
 #stage{
   position: relative;
-  width: 941px;
-  /* min/maxだけだとflex:1のgift-areaが余白まで広がりきらず、
-     カード(と中の画像)が min-height 相当の小さいサイズに
-     縮んでしまうことがあるため、確定した高さを指定する。
-     (仕様の「約500〜600px」の範囲内で580pxに設定) */
-  height: 580px;
-  padding: 16px;
+  width: 100vw;                      /* = 941 * var(--px) と同じ */
+  height: calc(580 * var(--px));     /* 941:580の比率を維持 */
+  padding: calc(16 * var(--px));
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: calc(10 * var(--px));
   opacity: 0;
   animation: stageFadeIn 1s ease forwards;
 }
@@ -106,25 +118,25 @@ body.overlay-page{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: calc(12 * var(--px));
 }
 .title-bar{
-  padding: 8px 20px;
+  padding: calc(8 * var(--px)) calc(20 * var(--px));
   display: flex;
   align-items: center;
 }
 .title-bar #title{
-  font-size: 22px;
+  font-size: calc(22 * var(--px));
   font-weight: 800; /* Shippori Minchoの最大ウェイト。太さの上限に合わせて可読性を確保 */
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
 .clock-bar{
-  padding: 8px 18px;
+  padding: calc(8 * var(--px)) calc(18 * var(--px));
 }
 .clock-bar #clock{
   font-family: var(--font-num);
-  font-size: 22px;
+  font-size: calc(22 * var(--px));
   font-weight: 800; /* 視認性重視でCinzelの太めウェイトを採用 */
   letter-spacing: 0.08em;
   color: var(--color-accent);
@@ -134,7 +146,9 @@ body.overlay-page{
 .gift-area{
   position: relative;
   flex: 1;
-  min-height: 400px;
+  /* #stageの高さが確定した比例値になったので、これはあくまで
+     保険用の最低ライン(通常はflex:1が正しく効いてこれより広くなる) */
+  min-height: calc(300 * var(--px));
 }
 
 /* 自動ページ送り用に2枚重ねて、クロスフェードで切り替える */
@@ -148,7 +162,7 @@ body.overlay-page{
      (grid-auto-rows: 1fr のままだと、行数が少ないページだけ
       カードが縦に間延びしてしまう) */
   grid-template-rows: repeat(3, 1fr);
-  gap: 10px;
+  gap: calc(10 * var(--px));
   opacity: 0;
   transform: translateY(4px);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -195,13 +209,13 @@ body.overlay-page{
 /* カード右上に「妨害」「救済」を示す小さなバッジを表示 */
 .gift-type-badge{
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: calc(5 * var(--px));
+  right: calc(5 * var(--px));
   z-index: 2;
-  font-size: 9px;
+  font-size: calc(9 * var(--px));
   font-weight: 800;
   letter-spacing: 0.02em;
-  padding: 2px 7px;
+  padding: calc(2 * var(--px)) calc(7 * var(--px));
   border-radius: 999px;
   color: #14100a;
   text-shadow: none;
@@ -232,10 +246,10 @@ body.overlay-page{
   right: 0;
   bottom: 0;
   z-index: 1;
-  padding: 6px 8px 7px;
+  padding: calc(6 * var(--px)) calc(8 * var(--px)) calc(7 * var(--px));
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: calc(2 * var(--px));
   background: linear-gradient(
     180deg,
     rgba(0,0,0,0) 0%,
@@ -244,7 +258,7 @@ body.overlay-page{
   );
 }
 .gift-name{
-  font-size: 13px;
+  font-size: calc(13 * var(--px));
   font-weight: 800;
   color: var(--color-accent);
   white-space: nowrap;
@@ -253,7 +267,7 @@ body.overlay-page{
   text-shadow: 0 1px 4px rgba(0,0,0,0.9);
 }
 .gift-effect{
-  font-size: 12px;
+  font-size: calc(12 * var(--px));
   font-weight: 800; /* Shippori Minchoの太めウェイトで可読性を確保 */
   color: #ffffff;
   line-height: 1.3;
@@ -267,19 +281,19 @@ body.overlay-page{
 /* --- 残りキル数(下部中央) --- */
 .kill-footer{
   align-self: center;
-  padding: 8px 48px;
+  padding: calc(8 * var(--px)) calc(48 * var(--px));
   display: flex;
   align-items: baseline;
-  gap: 14px;
+  gap: calc(14 * var(--px));
 }
 .kill-label{
-  font-size: 16px;
+  font-size: calc(16 * var(--px));
   font-weight: 800;
   color: var(--color-text-dim);
 }
 .kill-value{
   font-family: var(--font-num);
-  font-size: 64px;
+  font-size: calc(64 * var(--px));
   font-weight: 900; /* Cinzelの最大ウェイトで、一番目立たせたい数字を最も太く */
   line-height: 1;
   /* ほんのり光る演出。派手にしすぎない */
@@ -290,7 +304,7 @@ body.overlay-page{
   50%{ filter: drop-shadow(0 0 14px rgba(255,201,60,0.6)); }
 }
 .kill-unit{
-  font-size: 18px;
+  font-size: calc(18 * var(--px));
   font-weight: 800;
   color: var(--color-text-dim);
 }
@@ -298,9 +312,9 @@ body.overlay-page{
 /* --- 接続ステータス表示(デバッグ用。通常は目立たない) --- */
 .status-badge{
   position: absolute;
-  bottom: 4px;
-  right: 8px;
-  font-size: 10px;
+  bottom: calc(4 * var(--px));
+  right: calc(8 * var(--px));
+  font-size: calc(10 * var(--px));
   color: var(--color-danger);
   opacity: 0;
   transition: opacity 0.3s ease;
