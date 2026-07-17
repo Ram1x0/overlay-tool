@@ -296,18 +296,18 @@ body.overlay-page{
   z-index: 3;
   font-family: var(--font-num);
   font-weight: 900;
-  font-size: calc(24 * var(--px));
+  font-size: calc(42 * var(--px)); /* 24pxのおよそ1.75倍 */
   line-height: 1;
   letter-spacing: 0.02em;
   text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.85);
-  -webkit-text-stroke: calc(0.6 * var(--px)) rgba(0,0,0,0.7);
+  -webkit-text-stroke: calc(1 * var(--px)) rgba(0,0,0,0.7);
 }
 .gift-kill-delta--sabotage{ color: var(--color-sabotage); } /* +: 残りキル数が増える=悪化 */
 .gift-kill-delta--rescue{ color: var(--color-rescue); }     /* -: 残りキル数が減る=好転 */
 
-/* バッジと効果文字が重ならないよう、右側に余白を確保 */
+/* バッジと効果文字が重ならないよう、右側に余白を確保(バッジが大きくなった分広げる) */
 .gift-card--has-delta .gift-info{
-  padding-right: calc(56 * var(--px));
+  padding-right: calc(96 * var(--px));
 }
 
 /* --- 残りキル数(下部中央) --- */
@@ -319,13 +319,13 @@ body.overlay-page{
   gap: calc(14 * var(--px));
 }
 .kill-label{
-  font-size: calc(20 * var(--px));
+  font-size: calc(18 * var(--px));
   font-weight: 800;
   color: var(--color-text-dim);
 }
 .kill-value{
   font-family: var(--font-num);
-  font-size: calc(112 * var(--px)); /* 64pxのおよそ1.75倍 */
+  font-size: calc(64 * var(--px));
   font-weight: 900; /* Cinzelの最大ウェイトで、一番目立たせたい数字を最も太く */
   line-height: 1;
   /* ほんのり光る演出。派手にしすぎない */
@@ -336,7 +336,7 @@ body.overlay-page{
   50%{ filter: drop-shadow(0 0 14px rgba(255,201,60,0.6)); }
 }
 .kill-unit{
-  font-size: calc(22 * var(--px));
+  font-size: calc(20 * var(--px));
   font-weight: 800;
   color: var(--color-text-dim);
 }
