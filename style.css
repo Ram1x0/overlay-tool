@@ -43,6 +43,9 @@
   /* --- フォント --- */
   --font-jp: 'Shippori Mincho', serif;
   --font-num: 'Cinzel', serif;
+  /* 効果テキスト専用。明朝体は太さ800が上限で線の強弱も残るため、
+     ゴシック体の最太ウェイト(900)でより均一に太く見せる */
+  --font-effect: 'Zen Kaku Gothic New', sans-serif;
 }
 
 *{ box-sizing: border-box; margin: 0; padding: 0; }
@@ -274,8 +277,9 @@ body.overlay-page{
   );
 }
 .gift-effect{
+  font-family: var(--font-effect);
   font-size: calc(19 * var(--px));
-  font-weight: 800; /* Shippori Minchoの太めウェイトで可読性を確保 */
+  font-weight: 900; /* ゴシック体の最太ウェイトで、線の太さを均一に強調 */
   color: #ffffff;
   line-height: 1.15;
   display: -webkit-box;
@@ -283,7 +287,7 @@ body.overlay-page{
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.8);
-  -webkit-text-stroke: calc(0.5 * var(--px)) rgba(0,0,0,0.65);
+  -webkit-text-stroke: calc(0.4 * var(--px)) rgba(0,0,0,0.65);
 }
 
 /* キル数増減がある場合、右下に大きく表示するバッジ。
@@ -296,18 +300,18 @@ body.overlay-page{
   z-index: 3;
   font-family: var(--font-num);
   font-weight: 900;
-  font-size: calc(42 * var(--px)); /* 24pxのおよそ1.75倍 */
+  font-size: calc(52 * var(--px));
   line-height: 1;
   letter-spacing: 0.02em;
   text-shadow: 0 1px 4px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.85);
-  -webkit-text-stroke: calc(1 * var(--px)) rgba(0,0,0,0.7);
+  -webkit-text-stroke: calc(1.1 * var(--px)) rgba(0,0,0,0.7);
 }
 .gift-kill-delta--sabotage{ color: var(--color-sabotage); } /* +: 残りキル数が増える=悪化 */
 .gift-kill-delta--rescue{ color: var(--color-rescue); }     /* -: 残りキル数が減る=好転 */
 
 /* バッジと効果文字が重ならないよう、右側に余白を確保(バッジが大きくなった分広げる) */
 .gift-card--has-delta .gift-info{
-  padding-right: calc(96 * var(--px));
+  padding-right: calc(112 * var(--px));
 }
 
 /* --- 残りキル数(下部中央) --- */
