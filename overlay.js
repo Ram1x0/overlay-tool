@@ -15,8 +15,7 @@ const clockEl = document.getElementById('clock');
 const killLabelEl = document.getElementById('killLabel');
 const killCountEl = document.getElementById('killCount');
 const killUnitEl = document.getElementById('killUnit');
-const pageAEl = document.getElementById('giftPageA');
-const pageBEl = document.getElementById('giftPageB');
+const giftAreaEl = document.getElementById('giftArea');
 const statusEl = document.getElementById('status');
 
 // --- 自動ページ送りの設定値 ---
@@ -26,7 +25,7 @@ const PAGE_INTERVAL_MS = 5000; // ページ切替の間隔(ミリ秒)
 let currentGifts = [];
 let paginationTimer = null;
 let currentPageIndex = 0;
-let activeLayer = 'A'; // A/Bの2枚のレイヤーを交互に使ってクロスフェードさせる
+let pageElements = []; // 事前に作った各ページのDOM要素(切替時に作り直さない)
 
 // ============================================================
 // 時計
@@ -109,41 +108,49 @@ function escapeHtml(str) {
 }
 
 /**
- * 指定コンテナに、1ページ分のギフトカードをまとめて描画する
+ * 1ページ分のギフトカードをまとめたページ要素(div.gift-page)を作る。
+ * これを切替のたびに作り直すと画像の再デコードなどで負荷が出るため、
+ * ページ数分だけ「最初に1回」作って、以降は表示/非表示の切替だけで済ませる。
  */
-function renderGiftPage(container, gifts) {
-  container.innerHTML = '';
+function buildGiftPage(gifts) {
+  const page = document.createElement('div');
+  page.className = 'gift-page';
   const fragment = document.createDocumentFragment();
   gifts.forEach((gift) => fragment.appendChild(buildGiftCard(gift)));
-  container.appendChild(fragment);
+  page.appendChild(fragment);
+  return page;
 }
 
-function getTotalPages() {
-  return Math.max(1, Math.ceil(currentGifts.length / GIFTS_PER_PAGE));
-}
-
-function getGiftsForPage(pageIndex) {
-  const start = pageIndex * GIFTS_PER_PAGE;
-  return currentGifts.slice(start, start + GIFTS_PER_PAGE);
+function getTotalPages(giftsLength) {
+  return Math.max(1, Math.ceil(giftsLength / GIFTS_PER_PAGE));
 }
 
 /**
- * ページを切り替える。表示中でない方のレイヤーに次のページを描画してから
- * is-visibleクラスを入れ替えることで、CSSのtransitionによるクロスフェードになる。
+ * ギフトの内容が変わった時だけ呼ぶ。全ページ分のDOM要素を1回だけ作り直し、
+ * giftAreaに並べて配置する(すべて重ねて置き、CSSのopacityで見せ分ける)。
+ */
+function rebuildAllPages(gifts) {
+  giftAreaEl.innerHTML = '';
+  pageElements = [];
+
+  const totalPages = getTotalPages(gifts.length);
+  for (let i = 0; i < totalPages; i++) {
+    const start = i * GIFTS_PER_PAGE;
+    const pageGifts = gifts.slice(start, start + GIFTS_PER_PAGE);
+    const pageEl = buildGiftPage(pageGifts);
+    giftAreaEl.appendChild(pageEl);
+    pageElements.push(pageEl);
+  }
+}
+
+/**
+ * ページを切り替える。DOMは作り直さず、is-visibleクラスの
+ * 付け替えだけで行う(CSSのtransitionでクロスフェードする)。
  */
 function showPage(pageIndex) {
-  const gifts = getGiftsForPage(pageIndex);
-  const nextEl = activeLayer === 'A' ? pageBEl : pageAEl;
-  const prevEl = activeLayer === 'A' ? pageAEl : pageBEl;
-
-  renderGiftPage(nextEl, gifts);
-  // 次のフレームでクラスを切り替えると、確実にtransitionが発火する
-  requestAnimationFrame(() => {
-    nextEl.classList.add('is-visible');
-    prevEl.classList.remove('is-visible');
+  pageElements.forEach((pageEl, i) => {
+    pageEl.classList.toggle('is-visible', i === pageIndex);
   });
-
-  activeLayer = activeLayer === 'A' ? 'B' : 'A';
 }
 
 /**
@@ -154,7 +161,7 @@ function startPagination() {
   currentPageIndex = 0;
   showPage(currentPageIndex);
 
-  const totalPages = getTotalPages();
+  const totalPages = pageElements.length;
   if (totalPages <= 1) return; // 1ページで収まるなら切替不要
 
   paginationTimer = setInterval(() => {
@@ -175,11 +182,14 @@ function render(state) {
   killCountEl.textContent = state.killCount ?? 0;
 
   const gifts = Array.isArray(state.gifts) ? state.gifts : [];
-  // ギフトの中身が変化した時だけページ送りを再スタートする
-  // (キル数だけ更新された時に毎回ページがリセットされないようにするため)
+  // ギフトの中身が変化した時だけ全ページを作り直す
+  // (キル数だけ更新された時に毎回作り直さないようにするため)
   const giftsChanged = JSON.stringify(gifts) !== JSON.stringify(currentGifts);
   currentGifts = gifts;
-  if (giftsChanged) startPagination();
+  if (giftsChanged) {
+    rebuildAllPages(gifts);
+    startPagination();
+  }
 }
 
 function showStatus(show, message) {

@@ -65,8 +65,9 @@ html, body{
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-glass);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  /* 背景(配信映像)が毎フレーム変わるため、ぼかし半径を抑えて負荷を軽減 */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 /* イエローのグラデーション文字（タイトルやキル数などの強調に使用） */
@@ -332,12 +333,9 @@ body.overlay-page{
   font-size: calc(64 * var(--px));
   font-weight: 900; /* Cinzelの最大ウェイトで、一番目立たせたい数字を最も太く */
   line-height: 1;
-  /* ほんのり光る演出。派手にしすぎない */
-  animation: killGlow 3s ease-in-out infinite;
-}
-@keyframes killGlow{
-  0%, 100%{ filter: drop-shadow(0 0 6px rgba(255,201,60,0.35)); }
-  50%{ filter: drop-shadow(0 0 14px rgba(255,201,60,0.6)); }
+  /* 光る演出は毎フレームfilterを再計算する負荷が大きいため、
+     アニメーションさせず固定の光彩のみにする(パフォーマンス優先) */
+  filter: drop-shadow(0 0 10px rgba(255,201,60,0.5));
 }
 .kill-unit{
   font-size: calc(20 * var(--px));

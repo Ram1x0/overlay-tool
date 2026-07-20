@@ -33,11 +33,9 @@
       </div>
     </div>
 
-    <!-- ③ ギフト一覧: 2枚のレイヤーを交互に表示してクロスフェード -->
-    <div class="gift-area">
-      <div class="gift-page" id="giftPageA"></div>
-      <div class="gift-page" id="giftPageB"></div>
-    </div>
+    <!-- ③ ギフト一覧: ページ数分の要素をoverlay.jsが動的に生成し、
+         表示/非表示の切替だけでクロスフェードさせる(作り直さない) -->
+    <div class="gift-area" id="giftArea"></div>
 
     <!-- ④ 残りキル数(下部中央、大きく強調) -->
     <div class="kill-footer glass-panel">
