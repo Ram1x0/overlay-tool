@@ -16,6 +16,7 @@
 :root{
   /* --- カラー(黒 / グレー / イエロー基調) --- */
   --color-bg-glass: rgba(20, 20, 22, 0.72);      /* ガラスパネルの下地 */
+  --color-bg-glass-solid: rgba(16, 15, 12, 0.88); /* ぼかし無し版の下地(不透明度を上げて背景の映り込みを抑える) */
   --color-border: rgba(255, 201, 60, 0.35);       /* 金色のふちどり */
   --color-accent: #ffc93c;                        /* メインのイエロー */
   --color-accent-dim: #d6a422;
@@ -61,13 +62,13 @@ html, body{
    ガラス風パネルの共通クラス
    ============================================================ */
 .glass-panel{
-  background: var(--color-bg-glass);
+  /* backdrop-filter(ぼかし)は、背景の配信映像が毎フレーム変わるたびに
+     再計算が必要で負荷が大きいため廃止。代わりに背景の不透明度を上げて
+     「ガラス風」の見た目を保ちつつ負荷を抑える */
+  background: var(--color-bg-glass-solid);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-glass);
-  /* 背景(配信映像)が毎フレーム変わるため、ぼかし半径を抑えて負荷を軽減 */
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 
 /* イエローのグラデーション文字（タイトルやキル数などの強調に使用） */
@@ -192,13 +193,9 @@ body.overlay-page{
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-bg-glass); /* 画像読み込み前/失敗時の下地 */
-  /* 「少し浮く」控えめなアニメーション */
-  animation: cardFloat 3.6s ease-in-out infinite;
+  /* 以前は常時「少し浮く」アニメーションを付けていたが、最大18枚が常時
+     動き続けるのは負荷が大きいため廃止(静止表示にして負荷を軽減) */
 }
-/* カードごとに開始タイミングをずらして、機械的に見えないようにする */
-.gift-card:nth-child(2n){ animation-delay: 0.4s; }
-.gift-card:nth-child(3n){ animation-delay: 0.8s; }
-.gift-card:nth-child(5n){ animation-delay: 1.2s; }
 
 /* --- ギフト種別による色分け ---
    type: "sabotage"(妨害) は赤、"rescue"(救済) は緑でふちどりと発光色を変える */
@@ -229,11 +226,6 @@ body.overlay-page{
 }
 .gift-card--sabotage .gift-type-badge{ background: var(--color-sabotage); }
 .gift-card--rescue .gift-type-badge{ background: var(--color-rescue); }
-
-@keyframes cardFloat{
-  0%, 100%{ transform: translateY(0); }
-  50%{ transform: translateY(-2px); }
-}
 
 /* 画像をカード全面に敷く(奥のレイヤー) */
 .gift-image{
@@ -402,8 +394,10 @@ body.overlay-page{
 }
 .event-kill-roulette--sabotage{ color: var(--color-sabotage); }
 .event-kill-roulette--rescue{ color: var(--color-rescue); }
-/* 着地した瞬間に軽くバウンドさせる */
-.event-kill-roulette.is-landed{ animation: eventLand 0.4s ease; }
+/* 回転中: 光がふわふわ明滅する */
+.event-kill-roulette.is-spinning{ animation: rouletteGlow 0.5s ease-in-out infinite; }
+/* 着地した瞬間: バウンド+一瞬強く光るフラッシュ */
+.event-kill-roulette.is-landed{ animation: eventLand 0.5s ease; }
 
 /* 妨害ルーレット(採用された効果) */
 .event-effect-roulette{
@@ -414,7 +408,8 @@ body.overlay-page{
   margin-bottom: calc(8 * var(--px));
   text-shadow: 0 2px 6px rgba(0,0,0,0.9);
 }
-.event-effect-roulette.is-landed{ animation: eventLand 0.4s ease; }
+.event-effect-roulette.is-spinning{ animation: rouletteGlowWhite 0.5s ease-in-out infinite; }
+.event-effect-roulette.is-landed{ animation: eventLand 0.5s ease; }
 
 /* 任意の表示文字 */
 .event-announce{
@@ -424,10 +419,21 @@ body.overlay-page{
   color: var(--color-text);
 }
 
+/* 回転中の明滅(色付きテキスト用: キル数ルーレット) */
+@keyframes rouletteGlow{
+  0%, 100%{ filter: drop-shadow(0 0 4px currentColor); }
+  50%{ filter: drop-shadow(0 0 16px currentColor); }
+}
+/* 回転中の明滅(白テキスト用: 妨害ルーレット) */
+@keyframes rouletteGlowWhite{
+  0%, 100%{ filter: drop-shadow(0 0 3px rgba(255,255,255,0.4)); }
+  50%{ filter: drop-shadow(0 0 14px rgba(255,255,255,0.85)); }
+}
+/* 着地した瞬間: バウンドしながら一瞬強く光ってから落ち着く */
 @keyframes eventLand{
-  0%{ transform: scale(1.25); }
-  60%{ transform: scale(0.95); }
-  100%{ transform: scale(1); }
+  0%{ transform: scale(1.3); filter: drop-shadow(0 0 24px currentColor) brightness(1.6); }
+  60%{ transform: scale(0.95); filter: drop-shadow(0 0 10px currentColor) brightness(1.2); }
+  100%{ transform: scale(1); filter: drop-shadow(0 0 6px currentColor) brightness(1); }
 }
 
 

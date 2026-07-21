@@ -88,9 +88,23 @@ export function subscribeState(gameId, onChange, onError) {
  */
 export function subscribeGiftEvent(gameId, onEvent) {
   ensureFirebaseInitialized();
-  // 起動時に過去分すべてを再生しないよう、直近の少数件だけを対象にする
-  const ref = firebase.database().ref(`streams/${gameId}/events`).limitToLast(20);
+  const listRef = firebase.database().ref(`streams/${gameId}/events`);
+  const ref = listRef.limitToLast(20);
+
+  // 「起動時点より前からあった分(過去の再生)」を無視するための基準。
+  // 端末間の時刻のズレに依存する判定(タイムスタンプ比較)は信頼できないため、
+  // Firebaseのpushキーの並び順(常に時系列順になる)で判定する。
+  let readyKey = null;
+  let isReady = false;
+
+  listRef.limitToLast(1).once('value').then((snap) => {
+    snap.forEach((child) => { readyKey = child.key; });
+    isReady = true;
+  });
+
   const handler = (snapshot) => {
+    if (!isReady) return; // 基準キーが確定するまでは何もしない(起動直後の過去分はここで捨てる)
+    if (readyKey !== null && snapshot.key <= readyKey) return; // 起動前からあった分は無視
     const event = snapshot.val();
     if (event) onEvent(event);
   };
