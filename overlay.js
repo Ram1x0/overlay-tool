@@ -21,8 +21,8 @@ const statusEl = document.getElementById('status');
 // ギフト受信イベント演出用
 const eventBannerEl = document.getElementById('eventBanner');
 const eventGiftNameEl = document.getElementById('eventGiftName');
-const eventKillRouletteEl = document.getElementById('eventKillRoulette');
-const eventEffectRouletteEl = document.getElementById('eventEffectRoulette');
+const eventKillResultsEl = document.getElementById('eventKillResults');
+const eventEffectResultsEl = document.getElementById('eventEffectResults');
 const eventAnnounceEl = document.getElementById('eventAnnounce');
 
 // --- 自動ページ送りの設定値 ---
@@ -219,11 +219,11 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** キル数増減のルーレット演出(候補の中から実際の値をランダムに切り替えてから着地) */
+/** キル数増減のルーレット演出。結果は上書きせず、チップとして追加して残す */
 async function spinKillNumber(pool, finalDelta) {
-  eventKillRouletteEl.style.display = '';
-  eventKillRouletteEl.classList.remove('is-landed');
-  eventKillRouletteEl.classList.add('is-spinning');
+  const chip = document.createElement('div');
+  chip.className = 'kill-result-chip is-spinning';
+  eventKillResultsEl.appendChild(chip);
 
   // 回転中は「本当の候補一覧」からランダムに表示する(候補が無ければ着地値のみ)
   const candidates = pool && pool.length > 0 ? pool : [finalDelta];
@@ -231,33 +231,29 @@ async function spinKillNumber(pool, finalDelta) {
   while (Date.now() - startedAt < ROULETTE_SPIN_MS) {
     const v = candidates[Math.floor(Math.random() * candidates.length)];
     // 表示している値自身の符号で色を決める(+は赤=妨害、-は緑=救済)
-    eventKillRouletteEl.className =
-      `event-kill-roulette is-spinning event-kill-roulette--${v > 0 ? 'sabotage' : 'rescue'}`;
-    eventKillRouletteEl.textContent = v > 0 ? `+${v}` : `${v}`;
+    chip.className = `kill-result-chip is-spinning kill-result-chip--${v > 0 ? 'sabotage' : 'rescue'}`;
+    chip.textContent = v > 0 ? `+${v}` : `${v}`;
     await delay(ROULETTE_TICK_MS);
   }
-  eventKillRouletteEl.className =
-    `event-kill-roulette event-kill-roulette--${finalDelta > 0 ? 'sabotage' : 'rescue'}`;
-  eventKillRouletteEl.textContent = finalDelta > 0 ? `+${finalDelta}` : `${finalDelta}`;
-  eventKillRouletteEl.classList.add('is-landed');
+  chip.className = `kill-result-chip is-landed kill-result-chip--${finalDelta > 0 ? 'sabotage' : 'rescue'}`;
+  chip.textContent = finalDelta > 0 ? `+${finalDelta}` : `${finalDelta}`;
 }
 
-/** 妨害ルーレット演出(候補の中から実際の効果をランダムに切り替えてから着地) */
+/** 妨害ルーレット演出。結果は上書きせず、チップとして追加して残す */
 async function spinEffectText(pool, finalEffect) {
-  eventEffectRouletteEl.style.display = '';
-  eventEffectRouletteEl.classList.remove('is-landed');
-  eventEffectRouletteEl.classList.add('is-spinning');
+  const chip = document.createElement('div');
+  chip.className = 'effect-result-chip is-spinning';
+  eventEffectResultsEl.appendChild(chip);
 
   // 回転中は「本当の候補一覧」からランダムに表示する(候補が無ければ着地値のみ)
   const candidates = pool && pool.length > 0 ? pool : [finalEffect];
   const startedAt = Date.now();
   while (Date.now() - startedAt < ROULETTE_SPIN_MS) {
-    eventEffectRouletteEl.textContent = candidates[Math.floor(Math.random() * candidates.length)];
+    chip.textContent = candidates[Math.floor(Math.random() * candidates.length)];
     await delay(ROULETTE_TICK_MS);
   }
-  eventEffectRouletteEl.classList.remove('is-spinning');
-  eventEffectRouletteEl.textContent = finalEffect;
-  eventEffectRouletteEl.classList.add('is-landed');
+  chip.className = 'effect-result-chip is-landed';
+  chip.textContent = finalEffect;
 }
 
 /**
@@ -265,8 +261,8 @@ async function spinEffectText(pool, finalEffect) {
  * 呼び出し側は次のイベントを再生しない=順番に必ず全部再生される)。
  */
 async function playOneEvent(event) {
-  eventKillRouletteEl.style.display = 'none';
-  eventEffectRouletteEl.style.display = 'none';
+  eventKillResultsEl.innerHTML = '';
+  eventEffectResultsEl.innerHTML = '';
   eventAnnounceEl.style.display = 'none';
   eventBannerEl.classList.add('show');
 
@@ -276,8 +272,8 @@ async function playOneEvent(event) {
   const effectPool = Array.isArray(event.effectPool) ? event.effectPool : [];
   const totalRolls = Math.max(killRolls.length, effectRolls.length);
 
-  // 個数ぶん(コンボ分)を1件ずつ順番に再生する。同じ回に対応するキル増減と
-  // 妨害ルーレットは同時に回す(例: 2個目のギフト → 2個目のキル抽選+妨害抽選を同時再生)
+  // 個数ぶん(コンボ分)を1件ずつ順番に再生する。着地した結果は消さずに
+  // チップとして並べて残していくので、最後には全部の結果がまとめて見える。
   for (let i = 0; i < totalRolls; i++) {
     eventGiftNameEl.textContent = totalRolls > 1
       ? `${event.giftName} (${i + 1}/${totalRolls})`
@@ -285,25 +281,22 @@ async function playOneEvent(event) {
 
     const tasks = [];
     if (killRolls[i] !== undefined) tasks.push(spinKillNumber(killPool, killRolls[i]));
-    else eventKillRouletteEl.style.display = 'none';
-
     if (effectRolls[i] !== undefined) tasks.push(spinEffectText(effectPool, effectRolls[i]));
-    else eventEffectRouletteEl.style.display = 'none';
 
     await Promise.all(tasks);
     if (i < totalRolls - 1) await delay(ROLL_GAP_MS);
   }
 
-  if (totalRolls === 0) {
-    // ルーレットが無く、表示文字だけのイベント
-    eventGiftNameEl.textContent = event.giftName;
-  }
+  // 全部の抽選が終わったので、カウンター表示を消してギフト名だけに戻す
+  eventGiftNameEl.textContent = event.giftName;
   if (event.announceText) {
     eventAnnounceEl.style.display = '';
     eventAnnounceEl.textContent = event.announceText;
   }
 
-  await delay(EVENT_TAIL_MS);
+  // 結果が多いほど読むのに時間がかかるので、件数に応じて表示時間を延ばす
+  const tailMs = EVENT_TAIL_MS + Math.max(0, totalRolls - 1) * 700;
+  await delay(tailMs);
 }
 
 /**

@@ -382,34 +382,46 @@ body.overlay-page{
   letter-spacing: 0.04em;
 }
 
-/* キル数増減ルーレット */
-.event-kill-roulette{
+/* キル数増減ルーレット(複数個来た時は結果を並べて残していく) */
+.event-kill-results{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: calc(8 * var(--px));
+  margin-bottom: calc(10 * var(--px));
+}
+.kill-result-chip{
   font-family: var(--font-num);
   font-weight: 900;
-  font-size: calc(56 * var(--px));
+  font-size: calc(40 * var(--px));
   line-height: 1;
-  margin-bottom: calc(10 * var(--px));
-  -webkit-text-stroke: calc(0.8 * var(--px)) rgba(0,0,0,0.7);
+  -webkit-text-stroke: calc(0.7 * var(--px)) rgba(0,0,0,0.7);
   text-shadow: 0 2px 6px rgba(0,0,0,0.9);
 }
-.event-kill-roulette--sabotage{ color: var(--color-sabotage); }
-.event-kill-roulette--rescue{ color: var(--color-rescue); }
+.kill-result-chip--sabotage{ color: var(--color-sabotage); }
+.kill-result-chip--rescue{ color: var(--color-rescue); }
 /* 回転中: 光がふわふわ明滅する */
-.event-kill-roulette.is-spinning{ animation: rouletteGlow 0.5s ease-in-out infinite; }
+.kill-result-chip.is-spinning{ animation: rouletteGlow 0.5s ease-in-out infinite; }
 /* 着地した瞬間: バウンド+一瞬強く光るフラッシュ */
-.event-kill-roulette.is-landed{ animation: eventLand 0.5s ease; }
+.kill-result-chip.is-landed{ animation: eventLand 0.5s ease; }
 
-/* 妨害ルーレット(採用された効果) */
-.event-effect-roulette{
+/* 妨害ルーレット(採用された効果。複数個来た時は結果を並べて残していく) */
+.event-effect-results{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: calc(6 * var(--px)) calc(14 * var(--px));
+  margin-bottom: calc(8 * var(--px));
+}
+.effect-result-chip{
   font-family: var(--font-effect);
   font-weight: 900;
-  font-size: calc(26 * var(--px));
+  font-size: calc(20 * var(--px));
   color: #ffffff;
-  margin-bottom: calc(8 * var(--px));
   text-shadow: 0 2px 6px rgba(0,0,0,0.9);
 }
-.event-effect-roulette.is-spinning{ animation: rouletteGlowWhite 0.5s ease-in-out infinite; }
-.event-effect-roulette.is-landed{ animation: eventLand 0.5s ease; }
+.effect-result-chip.is-spinning{ animation: rouletteGlowWhite 0.5s ease-in-out infinite; }
+.effect-result-chip.is-landed{ animation: eventLand 0.5s ease; }
 
 /* 任意の表示文字 */
 .event-announce{
