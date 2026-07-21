@@ -68,8 +68,10 @@ function renderGiftList() {
         <summary>演出設定(任意)</summary>
         <label class="extra-checkbox">
           <input type="checkbox" class="f-kill-roulette" ${gift.killRoulette ? 'checked' : ''}>
-          キル数増減をルーレット演出付きで表示する(キル増減の設定が必要)
+          キル数増減をルーレット演出付きで表示する(実際の増減量もルーレットの結果通りになります)
         </label>
+        <label>キル増減の候補(1行に1つ。設定するとランダム抽選になり、上の「キル増減」欄より優先されます。空なら「キル増減」欄の固定値が使われます)</label>
+        <textarea class="f-kill-delta-pool" rows="2" placeholder="例:&#10;5&#10;-3&#10;10">${escapeAttr((gift.killDeltaPool || []).join('\n'))}</textarea>
         <label>妨害ルーレットの候補(1行に1つ。受信時にこの中からランダムで1つ採用されます)</label>
         <textarea class="f-effect-pool" rows="3" placeholder="例:&#10;回復禁止30秒&#10;画面反転10秒&#10;ジャンプ禁止20秒">${escapeAttr((gift.effectPool || []).join('\n'))}</textarea>
         <label>画面に表示する文字(任意。受信時に大きく表示されます)</label>
@@ -90,6 +92,16 @@ function renderGiftList() {
 
     row.querySelector('.f-kill-roulette').onchange = (e) => {
       gift.killRoulette = e.target.checked;
+    };
+    row.querySelector('.f-kill-delta-pool').oninput = (e) => {
+      // 1行1候補の数値として、空行・数値でない行を除いた配列にする
+      const lines = e.target.value
+        .split('\n')
+        .map((s) => s.trim())
+        .filter((s) => s !== '' && !Number.isNaN(Number(s)))
+        .map(Number);
+      if (lines.length === 0) { delete gift.killDeltaPool; }
+      else { gift.killDeltaPool = lines; }
     };
     row.querySelector('.f-effect-pool').oninput = (e) => {
       // 1行1候補として、空行を除いた配列にする

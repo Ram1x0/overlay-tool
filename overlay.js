@@ -207,89 +207,110 @@ function showStatus(show, message) {
 // ============================================================
 // ギフト受信イベント演出(Cloudflare Worker経由で届く)
 // ============================================================
-const EVENT_DISPLAY_MS = 4500;   // バナー全体を表示しておく時間
-const ROULETTE_SPIN_MS = 1200;   // ルーレットが回っている時間
+const ROULETTE_SPIN_MS = 900;    // ルーレットが回っている時間(1回あたり)
 const ROULETTE_TICK_MS = 60;     // ルーレットの数字/文字が切り替わる間隔
+const ROLL_GAP_MS = 350;         // 連続する場合の、1回ごとの間隔
+const EVENT_TAIL_MS = 1800;      // 全ロール再生後、バナーを消すまでの余韻
 
 let lastEventId = null;
+let eventPlayToken = 0; // 新しいイベントが来たら古い再生ループを打ち切るためのトークン
 let eventHideTimer = null;
 
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /** キル数増減のルーレット演出(ランダムな数字を高速に切り替えてから着地) */
-function playKillRoulette(finalDelta) {
+async function spinKillNumber(finalDelta) {
   eventKillRouletteEl.style.display = '';
   const sign = finalDelta > 0 ? 'sabotage' : 'rescue'; // +は妨害色(赤)、-は救済色(緑)
   eventKillRouletteEl.className = `event-kill-roulette event-kill-roulette--${sign}`;
+  eventKillRouletteEl.classList.remove('is-landed');
 
   const startedAt = Date.now();
-  const tick = () => {
-    const elapsed = Date.now() - startedAt;
-    if (elapsed >= ROULETTE_SPIN_MS) {
-      eventKillRouletteEl.textContent = finalDelta > 0 ? `+${finalDelta}` : `${finalDelta}`;
-      eventKillRouletteEl.classList.add('is-landed');
-      return;
-    }
+  while (Date.now() - startedAt < ROULETTE_SPIN_MS) {
     // 着地値の前後でランダムな数字を表示して「回っている」感を出す
     const randomValue = finalDelta + Math.floor(Math.random() * 11) - 5;
     eventKillRouletteEl.textContent = randomValue >= 0 ? `+${randomValue}` : `${randomValue}`;
-    setTimeout(tick, ROULETTE_TICK_MS);
-  };
-  tick();
+    await delay(ROULETTE_TICK_MS);
+  }
+  eventKillRouletteEl.textContent = finalDelta > 0 ? `+${finalDelta}` : `${finalDelta}`;
+  eventKillRouletteEl.classList.add('is-landed');
 }
 
 /** 妨害ルーレット演出(それらしい文字を高速に切り替えてから、実際に採用された効果に着地) */
-function playEffectRoulette(finalEffect) {
+async function spinEffectText(finalEffect) {
   eventEffectRouletteEl.style.display = '';
   eventEffectRouletteEl.classList.remove('is-landed');
 
-  // 着地前に表示するダミー候補(実際の候補リストが無くても雰囲気だけ出す)
   const dummyOptions = ['？？？', '抽選中', finalEffect];
   const startedAt = Date.now();
-  const tick = () => {
-    const elapsed = Date.now() - startedAt;
-    if (elapsed >= ROULETTE_SPIN_MS) {
-      eventEffectRouletteEl.textContent = finalEffect;
-      eventEffectRouletteEl.classList.add('is-landed');
-      return;
-    }
-    const pick = dummyOptions[Math.floor(Math.random() * dummyOptions.length)];
-    eventEffectRouletteEl.textContent = pick;
-    setTimeout(tick, ROULETTE_TICK_MS);
-  };
-  tick();
+  while (Date.now() - startedAt < ROULETTE_SPIN_MS) {
+    eventEffectRouletteEl.textContent = dummyOptions[Math.floor(Math.random() * dummyOptions.length)];
+    await delay(ROULETTE_TICK_MS);
+  }
+  eventEffectRouletteEl.textContent = finalEffect;
+  eventEffectRouletteEl.classList.add('is-landed');
 }
 
 /**
  * ギフト受信イベントを受け取って、該当する演出を再生する。
- * killDelta / chosenEffect / announceText のうち、あるものだけ表示する。
+ * killRolls / effectRolls は「受け取った個数ぶん」の配列で届くので、
+ * 1件ずつ順番にルーレットを回して着地させていく。
+ * 新しいイベントが来た場合は、再生中でも打ち切って新しい方を優先する。
  */
-function playGiftEvent(event) {
+async function playGiftEvent(event) {
   if (!event || event.id === lastEventId) return; // 同じイベントの二重再生を防ぐ
   lastEventId = event.id;
 
+  eventPlayToken += 1;
+  const myToken = eventPlayToken;
+
   if (eventHideTimer) clearTimeout(eventHideTimer);
 
-  eventGiftNameEl.textContent = event.repeatCount > 1
-    ? `${event.giftName} × ${event.repeatCount}`
-    : event.giftName;
-
   eventKillRouletteEl.style.display = 'none';
-  eventKillRouletteEl.textContent = '';
   eventEffectRouletteEl.style.display = 'none';
-  eventEffectRouletteEl.textContent = '';
   eventAnnounceEl.style.display = 'none';
-  eventAnnounceEl.textContent = '';
+  eventBannerEl.classList.add('show');
 
-  if (event.killDelta) playKillRoulette(event.killDelta);
-  if (event.chosenEffect) playEffectRoulette(event.chosenEffect);
+  const killRolls = Array.isArray(event.killRolls) ? event.killRolls : [];
+  const effectRolls = Array.isArray(event.effectRolls) ? event.effectRolls : [];
+  const totalRolls = Math.max(killRolls.length, effectRolls.length);
+
+  // 個数ぶん(コンボ分)を1件ずつ順番に再生する。同じ回に対応するキル増減と
+  // 妨害ルーレットは同時に回す(例: 2個目のギフト → 2個目のキル抽選+妨害抽選を同時再生)
+  for (let i = 0; i < totalRolls; i++) {
+    if (myToken !== eventPlayToken) return; // 新しいイベントが来たので打ち切り
+
+    eventGiftNameEl.textContent = totalRolls > 1
+      ? `${event.giftName} (${i + 1}/${totalRolls})`
+      : event.giftName;
+
+    const tasks = [];
+    if (killRolls[i] !== undefined) tasks.push(spinKillNumber(killRolls[i]));
+    else eventKillRouletteEl.style.display = 'none';
+
+    if (effectRolls[i] !== undefined) tasks.push(spinEffectText(effectRolls[i]));
+    else eventEffectRouletteEl.style.display = 'none';
+
+    await Promise.all(tasks);
+    if (i < totalRolls - 1) await delay(ROLL_GAP_MS);
+  }
+
+  if (myToken !== eventPlayToken) return;
+
+  if (totalRolls === 0) {
+    // ルーレットが無く、表示文字だけのイベント
+    eventGiftNameEl.textContent = event.giftName;
+  }
   if (event.announceText) {
     eventAnnounceEl.style.display = '';
     eventAnnounceEl.textContent = event.announceText;
   }
 
-  eventBannerEl.classList.add('show');
   eventHideTimer = setTimeout(() => {
     eventBannerEl.classList.remove('show');
-  }, EVENT_DISPLAY_MS);
+  }, EVENT_TAIL_MS);
 }
 
 // ============================================================
