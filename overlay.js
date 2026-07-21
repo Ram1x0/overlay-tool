@@ -272,12 +272,15 @@ async function playOneEvent(event) {
   const effectPool = Array.isArray(event.effectPool) ? event.effectPool : [];
   const totalRolls = Math.max(killRolls.length, effectRolls.length);
 
+  // ギフト名の代わりに、送った人の名前を表示する
+  const displayName = event.senderName || event.giftName;
+
   // 個数ぶん(コンボ分)を1件ずつ順番に再生する。着地した結果は消さずに
   // チップとして並べて残していくので、最後には全部の結果がまとめて見える。
   for (let i = 0; i < totalRolls; i++) {
     eventGiftNameEl.textContent = totalRolls > 1
-      ? `${event.giftName} (${i + 1}/${totalRolls})`
-      : event.giftName;
+      ? `${displayName} (${i + 1}/${totalRolls})`
+      : displayName;
 
     const tasks = [];
     if (killRolls[i] !== undefined) tasks.push(spinKillNumber(killPool, killRolls[i]));
@@ -287,8 +290,8 @@ async function playOneEvent(event) {
     if (i < totalRolls - 1) await delay(ROLL_GAP_MS);
   }
 
-  // 全部の抽選が終わったので、カウンター表示を消してギフト名だけに戻す
-  eventGiftNameEl.textContent = event.giftName;
+  // 全部の抽選が終わったので、カウンター表示を消して名前だけに戻す
+  eventGiftNameEl.textContent = displayName;
   if (event.announceText) {
     eventAnnounceEl.style.display = '';
     eventAnnounceEl.textContent = event.announceText;
