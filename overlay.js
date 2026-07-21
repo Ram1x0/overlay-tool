@@ -220,33 +220,35 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** キル数増減のルーレット演出(ランダムな数字を高速に切り替えてから着地) */
-async function spinKillNumber(finalDelta) {
+/** キル数増減のルーレット演出(候補の中から実際の値をランダムに切り替えてから着地) */
+async function spinKillNumber(pool, finalDelta) {
   eventKillRouletteEl.style.display = '';
   const sign = finalDelta > 0 ? 'sabotage' : 'rescue'; // +は妨害色(赤)、-は救済色(緑)
   eventKillRouletteEl.className = `event-kill-roulette event-kill-roulette--${sign}`;
   eventKillRouletteEl.classList.remove('is-landed');
 
+  // 回転中は「本当の候補一覧」からランダムに表示する(候補が無ければ着地値のみ)
+  const candidates = pool && pool.length > 0 ? pool : [finalDelta];
   const startedAt = Date.now();
   while (Date.now() - startedAt < ROULETTE_SPIN_MS) {
-    // 着地値の前後でランダムな数字を表示して「回っている」感を出す
-    const randomValue = finalDelta + Math.floor(Math.random() * 11) - 5;
-    eventKillRouletteEl.textContent = randomValue >= 0 ? `+${randomValue}` : `${randomValue}`;
+    const v = candidates[Math.floor(Math.random() * candidates.length)];
+    eventKillRouletteEl.textContent = v > 0 ? `+${v}` : `${v}`;
     await delay(ROULETTE_TICK_MS);
   }
   eventKillRouletteEl.textContent = finalDelta > 0 ? `+${finalDelta}` : `${finalDelta}`;
   eventKillRouletteEl.classList.add('is-landed');
 }
 
-/** 妨害ルーレット演出(それらしい文字を高速に切り替えてから、実際に採用された効果に着地) */
-async function spinEffectText(finalEffect) {
+/** 妨害ルーレット演出(候補の中から実際の効果をランダムに切り替えてから着地) */
+async function spinEffectText(pool, finalEffect) {
   eventEffectRouletteEl.style.display = '';
   eventEffectRouletteEl.classList.remove('is-landed');
 
-  const dummyOptions = ['？？？', '抽選中', finalEffect];
+  // 回転中は「本当の候補一覧」からランダムに表示する(候補が無ければ着地値のみ)
+  const candidates = pool && pool.length > 0 ? pool : [finalEffect];
   const startedAt = Date.now();
   while (Date.now() - startedAt < ROULETTE_SPIN_MS) {
-    eventEffectRouletteEl.textContent = dummyOptions[Math.floor(Math.random() * dummyOptions.length)];
+    eventEffectRouletteEl.textContent = candidates[Math.floor(Math.random() * candidates.length)];
     await delay(ROULETTE_TICK_MS);
   }
   eventEffectRouletteEl.textContent = finalEffect;
@@ -275,6 +277,8 @@ async function playGiftEvent(event) {
 
   const killRolls = Array.isArray(event.killRolls) ? event.killRolls : [];
   const effectRolls = Array.isArray(event.effectRolls) ? event.effectRolls : [];
+  const killPool = Array.isArray(event.killPool) ? event.killPool : [];
+  const effectPool = Array.isArray(event.effectPool) ? event.effectPool : [];
   const totalRolls = Math.max(killRolls.length, effectRolls.length);
 
   // 個数ぶん(コンボ分)を1件ずつ順番に再生する。同じ回に対応するキル増減と
@@ -287,10 +291,10 @@ async function playGiftEvent(event) {
       : event.giftName;
 
     const tasks = [];
-    if (killRolls[i] !== undefined) tasks.push(spinKillNumber(killRolls[i]));
+    if (killRolls[i] !== undefined) tasks.push(spinKillNumber(killPool, killRolls[i]));
     else eventKillRouletteEl.style.display = 'none';
 
-    if (effectRolls[i] !== undefined) tasks.push(spinEffectText(effectRolls[i]));
+    if (effectRolls[i] !== undefined) tasks.push(spinEffectText(effectPool, effectRolls[i]));
     else eventEffectRouletteEl.style.display = 'none';
 
     await Promise.all(tasks);
