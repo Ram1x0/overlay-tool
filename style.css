@@ -356,9 +356,9 @@ body.overlay-page{
   left: 50%;
   transform: translate(-50%, -50%) scale(0.9);
   z-index: 10;
-  min-width: calc(360 * var(--px));
-  max-width: calc(700 * var(--px));
-  padding: calc(20 * var(--px)) calc(32 * var(--px));
+  min-width: calc(480 * var(--px));
+  max-width: calc(900 * var(--px));
+  padding: calc(30 * var(--px)) calc(44 * var(--px));
   text-align: center;
   background: rgba(15, 13, 8, 0.88);
   border: calc(2 * var(--px)) solid var(--color-accent);
@@ -376,9 +376,9 @@ body.overlay-page{
 .event-gift-name{
   font-family: var(--font-jp);
   font-weight: 800;
-  font-size: calc(20 * var(--px));
+  font-size: calc(26 * var(--px));
   color: var(--color-accent);
-  margin-bottom: calc(10 * var(--px));
+  margin-bottom: calc(14 * var(--px));
   letter-spacing: 0.04em;
 }
 
@@ -387,15 +387,15 @@ body.overlay-page{
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: calc(8 * var(--px));
-  margin-bottom: calc(10 * var(--px));
+  gap: calc(12 * var(--px));
+  margin-bottom: calc(14 * var(--px));
 }
 .kill-result-chip{
   font-family: var(--font-num);
   font-weight: 900;
-  font-size: calc(40 * var(--px));
+  font-size: calc(70 * var(--px)); /* 40pxのおよそ1.75倍 */
   line-height: 1;
-  -webkit-text-stroke: calc(0.7 * var(--px)) rgba(0,0,0,0.7);
+  -webkit-text-stroke: calc(1.1 * var(--px)) rgba(0,0,0,0.7);
   text-shadow: 0 2px 6px rgba(0,0,0,0.9);
 }
 .kill-result-chip--sabotage{ color: var(--color-sabotage); }
@@ -410,13 +410,13 @@ body.overlay-page{
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: calc(6 * var(--px)) calc(14 * var(--px));
-  margin-bottom: calc(8 * var(--px));
+  gap: calc(10 * var(--px)) calc(22 * var(--px));
+  margin-bottom: calc(12 * var(--px));
 }
 .effect-result-chip{
   font-family: var(--font-effect);
   font-weight: 900;
-  font-size: calc(20 * var(--px));
+  font-size: calc(35 * var(--px)); /* 20pxのおよそ1.75倍 */
   color: #ffffff;
   text-shadow: 0 2px 6px rgba(0,0,0,0.9);
 }
@@ -427,7 +427,7 @@ body.overlay-page{
 .event-announce{
   font-family: var(--font-jp);
   font-weight: 700;
-  font-size: calc(18 * var(--px));
+  font-size: calc(22 * var(--px));
   color: var(--color-text);
 }
 
