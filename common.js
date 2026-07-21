@@ -78,22 +78,24 @@ export function subscribeState(gameId, onChange, onError) {
 }
 
 /**
- * Cloudflare Worker(tikfinity-kill-bridge)が書き込む「演出イベント」を購読する。
- * ギフト受信のたびに新しいidを持つイベントが書き込まれるので、
- * 呼び出し側でidの変化を見て「新着かどうか」を判定する想定。
+ * Cloudflare Worker(tikfinity-kill-bridge)がpushで追記する「演出イベント」を購読する。
+ * 上書き型(value)だと、ほぼ同時に複数件届いた時に古い方が消えてしまうため、
+ * 追記型のリストに対してchild_added(新しく追加された子要素だけを検知)で購読する。
+ * こうすることで、同時に複数件届いても1件も取りこぼさない。
  * @param {string} gameId
  * @param {(event: Object) => void} onEvent
  * @returns {() => void} 購読解除用の関数
  */
 export function subscribeGiftEvent(gameId, onEvent) {
   ensureFirebaseInitialized();
-  const ref = firebase.database().ref(`streams/${gameId}/latestEvent`);
+  // 起動時に過去分すべてを再生しないよう、直近の少数件だけを対象にする
+  const ref = firebase.database().ref(`streams/${gameId}/events`).limitToLast(20);
   const handler = (snapshot) => {
     const event = snapshot.val();
     if (event) onEvent(event);
   };
-  ref.on('value', handler);
-  return () => ref.off('value', handler);
+  ref.on('child_added', handler);
+  return () => ref.off('child_added', handler);
 }
 
 /**
