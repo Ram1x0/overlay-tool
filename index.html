@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -46,6 +46,14 @@
 
     <!-- 接続エラー時のみ表示される小さなステータス表示 -->
     <div id="status" class="status-badge">接続できません</div>
+
+    <!-- ギフト受信イベント演出(Cloudflare Worker経由でギフトが届いた時だけ表示) -->
+    <div class="event-banner" id="eventBanner">
+      <div class="event-gift-name" id="eventGiftName"></div>
+      <div class="event-kill-roulette" id="eventKillRoulette"></div>
+      <div class="event-effect-roulette" id="eventEffectRoulette"></div>
+      <div class="event-announce" id="eventAnnounce"></div>
+    </div>
   </div>
 
   <!-- Firebase SDK (compat版。ビルド不要でそのまま使える) -->

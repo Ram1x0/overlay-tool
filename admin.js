@@ -64,6 +64,17 @@ function renderGiftList() {
           <button type="button" class="btn btn-danger btn-icon f-remove" title="削除">✕</button>
         </div>
       </div>
+      <details class="gift-row-extra">
+        <summary>演出設定(任意)</summary>
+        <label class="extra-checkbox">
+          <input type="checkbox" class="f-kill-roulette" ${gift.killRoulette ? 'checked' : ''}>
+          キル数増減をルーレット演出付きで表示する(キル増減の設定が必要)
+        </label>
+        <label>妨害ルーレットの候補(1行に1つ。受信時にこの中からランダムで1つ採用されます)</label>
+        <textarea class="f-effect-pool" rows="3" placeholder="例:&#10;回復禁止30秒&#10;画面反転10秒&#10;ジャンプ禁止20秒">${escapeAttr((gift.effectPool || []).join('\n'))}</textarea>
+        <label>画面に表示する文字(任意。受信時に大きく表示されます)</label>
+        <input type="text" class="f-announce-text" placeholder="例: 〇〇からの挑戦状！" value="${escapeAttr(gift.announceText)}">
+      </details>
     `;
 
     // 入力内容をそのまま state.gifts[index] に反映(保存ボタンで確定)
@@ -75,6 +86,21 @@ function renderGiftList() {
       const v = e.target.value;
       if (v === '') { delete gift.killDelta; }
       else { gift.killDelta = Number(v); }
+    };
+
+    row.querySelector('.f-kill-roulette').onchange = (e) => {
+      gift.killRoulette = e.target.checked;
+    };
+    row.querySelector('.f-effect-pool').oninput = (e) => {
+      // 1行1候補として、空行を除いた配列にする
+      const lines = e.target.value.split('\n').map((s) => s.trim()).filter(Boolean);
+      if (lines.length === 0) { delete gift.effectPool; }
+      else { gift.effectPool = lines; }
+    };
+    row.querySelector('.f-announce-text').oninput = (e) => {
+      const v = e.target.value;
+      if (v === '') { delete gift.announceText; }
+      else { gift.announceText = v; }
     };
 
     const typeSelect = row.querySelector('.f-type');

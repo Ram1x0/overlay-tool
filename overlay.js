@@ -5,7 +5,7 @@
 // データの取得・保存は一切ここで行わない。すべて common.js の
 // 関数を呼び出すだけ。（表示とデータ管理の分離）
 // ============================================================
-import { getGameId, subscribeState, fetchState, resetFromDefaults } from './common.js';
+import { getGameId, subscribeState, fetchState, resetFromDefaults, subscribeGiftEvent } from './common.js';
 
 const gameId = getGameId();
 
@@ -17,6 +17,13 @@ const killCountEl = document.getElementById('killCount');
 const killUnitEl = document.getElementById('killUnit');
 const giftAreaEl = document.getElementById('giftArea');
 const statusEl = document.getElementById('status');
+
+// ギフト受信イベント演出用
+const eventBannerEl = document.getElementById('eventBanner');
+const eventGiftNameEl = document.getElementById('eventGiftName');
+const eventKillRouletteEl = document.getElementById('eventKillRoulette');
+const eventEffectRouletteEl = document.getElementById('eventEffectRoulette');
+const eventAnnounceEl = document.getElementById('eventAnnounce');
 
 // --- 自動ページ送りの設定値 ---
 const GIFTS_PER_PAGE = 18;   // 1ページに表示するギフト数
@@ -198,6 +205,94 @@ function showStatus(show, message) {
 }
 
 // ============================================================
+// ギフト受信イベント演出(Cloudflare Worker経由で届く)
+// ============================================================
+const EVENT_DISPLAY_MS = 4500;   // バナー全体を表示しておく時間
+const ROULETTE_SPIN_MS = 1200;   // ルーレットが回っている時間
+const ROULETTE_TICK_MS = 60;     // ルーレットの数字/文字が切り替わる間隔
+
+let lastEventId = null;
+let eventHideTimer = null;
+
+/** キル数増減のルーレット演出(ランダムな数字を高速に切り替えてから着地) */
+function playKillRoulette(finalDelta) {
+  eventKillRouletteEl.style.display = '';
+  const sign = finalDelta > 0 ? 'sabotage' : 'rescue'; // +は妨害色(赤)、-は救済色(緑)
+  eventKillRouletteEl.className = `event-kill-roulette event-kill-roulette--${sign}`;
+
+  const startedAt = Date.now();
+  const tick = () => {
+    const elapsed = Date.now() - startedAt;
+    if (elapsed >= ROULETTE_SPIN_MS) {
+      eventKillRouletteEl.textContent = finalDelta > 0 ? `+${finalDelta}` : `${finalDelta}`;
+      eventKillRouletteEl.classList.add('is-landed');
+      return;
+    }
+    // 着地値の前後でランダムな数字を表示して「回っている」感を出す
+    const randomValue = finalDelta + Math.floor(Math.random() * 11) - 5;
+    eventKillRouletteEl.textContent = randomValue >= 0 ? `+${randomValue}` : `${randomValue}`;
+    setTimeout(tick, ROULETTE_TICK_MS);
+  };
+  tick();
+}
+
+/** 妨害ルーレット演出(それらしい文字を高速に切り替えてから、実際に採用された効果に着地) */
+function playEffectRoulette(finalEffect) {
+  eventEffectRouletteEl.style.display = '';
+  eventEffectRouletteEl.classList.remove('is-landed');
+
+  // 着地前に表示するダミー候補(実際の候補リストが無くても雰囲気だけ出す)
+  const dummyOptions = ['？？？', '抽選中', finalEffect];
+  const startedAt = Date.now();
+  const tick = () => {
+    const elapsed = Date.now() - startedAt;
+    if (elapsed >= ROULETTE_SPIN_MS) {
+      eventEffectRouletteEl.textContent = finalEffect;
+      eventEffectRouletteEl.classList.add('is-landed');
+      return;
+    }
+    const pick = dummyOptions[Math.floor(Math.random() * dummyOptions.length)];
+    eventEffectRouletteEl.textContent = pick;
+    setTimeout(tick, ROULETTE_TICK_MS);
+  };
+  tick();
+}
+
+/**
+ * ギフト受信イベントを受け取って、該当する演出を再生する。
+ * killDelta / chosenEffect / announceText のうち、あるものだけ表示する。
+ */
+function playGiftEvent(event) {
+  if (!event || event.id === lastEventId) return; // 同じイベントの二重再生を防ぐ
+  lastEventId = event.id;
+
+  if (eventHideTimer) clearTimeout(eventHideTimer);
+
+  eventGiftNameEl.textContent = event.repeatCount > 1
+    ? `${event.giftName} × ${event.repeatCount}`
+    : event.giftName;
+
+  eventKillRouletteEl.style.display = 'none';
+  eventKillRouletteEl.textContent = '';
+  eventEffectRouletteEl.style.display = 'none';
+  eventEffectRouletteEl.textContent = '';
+  eventAnnounceEl.style.display = 'none';
+  eventAnnounceEl.textContent = '';
+
+  if (event.killDelta) playKillRoulette(event.killDelta);
+  if (event.chosenEffect) playEffectRoulette(event.chosenEffect);
+  if (event.announceText) {
+    eventAnnounceEl.style.display = '';
+    eventAnnounceEl.textContent = event.announceText;
+  }
+
+  eventBannerEl.classList.add('show');
+  eventHideTimer = setTimeout(() => {
+    eventBannerEl.classList.remove('show');
+  }, EVENT_DISPLAY_MS);
+}
+
+// ============================================================
 // 初期化
 // ============================================================
 async function init() {
@@ -220,6 +315,9 @@ async function init() {
     (state) => { showStatus(false); render(state); },
     () => showStatus(true, 'サーバーとの接続が切れました')
   );
+
+  // ギフト受信イベント(Cloudflare Worker経由)の購読
+  subscribeGiftEvent(gameId, playGiftEvent);
 }
 
 init();

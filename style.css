@@ -355,6 +355,81 @@ body.overlay-page{
 }
 .status-badge.show{ opacity: 0.85; }
 
+/* ============================================================
+   ギフト受信イベント演出(Cloudflare Worker経由で届いた時だけ表示)
+   ============================================================ */
+.event-banner{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  z-index: 10;
+  min-width: calc(360 * var(--px));
+  max-width: calc(700 * var(--px));
+  padding: calc(20 * var(--px)) calc(32 * var(--px));
+  text-align: center;
+  background: rgba(15, 13, 8, 0.88);
+  border: calc(2 * var(--px)) solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 calc(30 * var(--px)) rgba(255, 201, 60, 0.35), var(--shadow-glass);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.event-banner.show{
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.event-gift-name{
+  font-family: var(--font-jp);
+  font-weight: 800;
+  font-size: calc(20 * var(--px));
+  color: var(--color-accent);
+  margin-bottom: calc(10 * var(--px));
+  letter-spacing: 0.04em;
+}
+
+/* キル数増減ルーレット */
+.event-kill-roulette{
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: calc(56 * var(--px));
+  line-height: 1;
+  margin-bottom: calc(10 * var(--px));
+  -webkit-text-stroke: calc(0.8 * var(--px)) rgba(0,0,0,0.7);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+}
+.event-kill-roulette--sabotage{ color: var(--color-sabotage); }
+.event-kill-roulette--rescue{ color: var(--color-rescue); }
+/* 着地した瞬間に軽くバウンドさせる */
+.event-kill-roulette.is-landed{ animation: eventLand 0.4s ease; }
+
+/* 妨害ルーレット(採用された効果) */
+.event-effect-roulette{
+  font-family: var(--font-effect);
+  font-weight: 900;
+  font-size: calc(26 * var(--px));
+  color: #ffffff;
+  margin-bottom: calc(8 * var(--px));
+  text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+}
+.event-effect-roulette.is-landed{ animation: eventLand 0.4s ease; }
+
+/* 任意の表示文字 */
+.event-announce{
+  font-family: var(--font-jp);
+  font-weight: 700;
+  font-size: calc(18 * var(--px));
+  color: var(--color-text);
+}
+
+@keyframes eventLand{
+  0%{ transform: scale(1.25); }
+  60%{ transform: scale(0.95); }
+  100%{ transform: scale(1); }
+}
+
 
 /* ============================================================
    ② 管理画面（admin.html）
@@ -501,6 +576,45 @@ body.admin-page{
 /* 種別セレクトは選ばれている値に応じてふちの色を変え、一覧性を上げる */
 .gift-row select.f-type-sabotage{ border-color: var(--color-sabotage); color: var(--color-sabotage); }
 .gift-row select.f-type-rescue{ border-color: var(--color-rescue); color: var(--color-rescue); }
+
+/* --- ギフト行の「演出設定」折りたたみ --- */
+.gift-row-extra{
+  margin-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 8px;
+}
+.gift-row-extra summary{
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-text-dim);
+  margin-bottom: 8px;
+}
+.gift-row-extra label{
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-dim);
+  margin: 8px 0 4px;
+}
+.gift-row-extra .extra-checkbox{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text);
+}
+.gift-row-extra .extra-checkbox input{ width: auto; }
+.gift-row-extra textarea,
+.gift-row-extra input[type="text"]{
+  width: 100%;
+  padding: 8px;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #0d0d0e;
+  color: var(--color-text);
+  font-family: inherit;
+  resize: vertical;
+}
 
 /* --- 保存後のトースト通知 --- */
 #status{
