@@ -358,7 +358,7 @@ body.overlay-page{
   z-index: 10;
   min-width: calc(480 * var(--px));
   max-width: calc(900 * var(--px));
-  padding: calc(30 * var(--px)) calc(44 * var(--px));
+  padding: calc(18 * var(--px)) calc(48 * var(--px));
   text-align: center;
   background: rgba(15, 13, 8, 0.88);
   border: calc(2 * var(--px)) solid var(--color-accent);
@@ -378,7 +378,7 @@ body.overlay-page{
   font-weight: 800;
   font-size: calc(26 * var(--px));
   color: var(--color-accent);
-  margin-bottom: calc(14 * var(--px));
+  margin-bottom: calc(8 * var(--px));
   letter-spacing: 0.04em;
 }
 
@@ -388,7 +388,7 @@ body.overlay-page{
   flex-wrap: wrap;
   justify-content: center;
   gap: calc(12 * var(--px));
-  margin-bottom: calc(14 * var(--px));
+  margin-bottom: calc(8 * var(--px));
 }
 .kill-result-chip{
   font-family: var(--font-num);
@@ -411,7 +411,7 @@ body.overlay-page{
   flex-wrap: wrap;
   justify-content: center;
   gap: calc(10 * var(--px)) calc(22 * var(--px));
-  margin-bottom: calc(12 * var(--px));
+  margin-bottom: calc(6 * var(--px));
 }
 .effect-result-chip{
   font-family: var(--font-effect);
